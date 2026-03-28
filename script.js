@@ -11,15 +11,21 @@ const fileName = document.getElementById('fileName');
 const generateBtn = document.getElementById('generateBtn');
 const loading = document.getElementById('loading');
 const result = document.getElementById('result');
-const resultImage = document.getElementById('resultImage');
+const resultContainer = document.getElementById('resultContainer');
 const downloadBtn = document.getElementById('downloadBtn');
 const resetBtn = document.getElementById('resetBtn');
+
+let currentResultUrl = '';
+let currentIsHtml = false;
 
 // Reset button handler
 resetBtn.addEventListener('click', () => {
     result.classList.add('hidden');
+    resultContainer.innerHTML = '';
     form.reset();
     fileName.textContent = 'Pilih gambar...';
+    currentResultUrl = '';
+    currentIsHtml = false;
 });
 
 // Image preload
@@ -128,6 +134,7 @@ form.addEventListener('submit', async (e) => {
     // Show loading
     loading.classList.remove('hidden');
     result.classList.add('hidden');
+    resultContainer.innerHTML = '';
     generateBtn.disabled = true;
     generateBtn.innerHTML = `
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="animation: spin 1s linear infinite;">
@@ -147,7 +154,7 @@ form.addEventListener('submit', async (e) => {
         
         // Set timeout for fetch
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout
+        const timeoutId = setTimeout(() => controller.abort(), 90000); // 90 second timeout
         
         // Call Netlify Function
         const response = await fetch('/.netlify/functions/generate', {
@@ -178,15 +185,43 @@ form.addEventListener('submit', async (e) => {
             throw new Error(data.error || 'Invalid response from server');
         }
         
-        // Show result
-        resultImage.src = data.imageUrl;
+        currentResultUrl = data.imageUrl;
+        currentIsHtml = data.isHtml || false;
+        
+        // Display result
+        if (currentIsHtml) {
+            // Create iframe for HTML preview
+            const iframe = document.createElement('iframe');
+            iframe.src = data.imageUrl;
+            iframe.style.width = '100%';
+            iframe.style.height = '500px';
+            iframe.style.border = 'none';
+            iframe.style.borderRadius = '12px';
+            iframe.style.backgroundColor = '#fff';
+            
+            resultContainer.innerHTML = '';
+            resultContainer.appendChild(iframe);
+        } else {
+            // Create image element
+            const img = document.createElement('img');
+            img.id = 'resultImage';
+            img.src = data.imageUrl;
+            img.alt = 'Generated Quote';
+            img.style.width = '100%';
+            img.style.borderRadius = '12px';
+            img.style.marginBottom = '20px';
+            
+            resultContainer.innerHTML = '';
+            resultContainer.appendChild(img);
+        }
+        
         result.classList.remove('hidden');
         loading.classList.add('hidden');
         
-        // Setup download with error handling
+        // Setup download button
         downloadBtn.onclick = async () => {
             try {
-                console.log('Downloading image...');
+                console.log('Downloading file...');
                 downloadBtn.disabled = true;
                 downloadBtn.innerHTML = `
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="animation: spin 1s linear infinite;">
@@ -198,7 +233,7 @@ form.addEventListener('submit', async (e) => {
                 const downloadResponse = await fetch('/.netlify/functions/download', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ imageUrl: data.imageUrl })
+                    body: JSON.stringify({ imageUrl: currentResultUrl })
                 });
                 
                 if (!downloadResponse.ok) {
@@ -208,8 +243,9 @@ form.addEventListener('submit', async (e) => {
                 const blob = await downloadResponse.blob();
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
+                const extension = currentIsHtml ? 'html' : 'jpg';
+                a.download = `fake-fb-quote-${Date.now()}.${extension}`;
                 a.href = url;
-                a.download = `fake-fb-quote-${Date.now()}.jpg`;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -218,7 +254,7 @@ form.addEventListener('submit', async (e) => {
                 console.log('Download complete');
             } catch (error) {
                 console.error('Download error:', error);
-                alert('Gagal download gambar: ' + error.message + '. Silakan coba lagi.');
+                alert('Gagal download: ' + error.message + '. Silakan coba lagi.');
             } finally {
                 downloadBtn.disabled = false;
                 downloadBtn.innerHTML = `
