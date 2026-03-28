@@ -27,9 +27,8 @@ let progress = 0;
 let imageLoaded = false;
 
 const progressInterval = setInterval(() => {
-    // Progress akan berjalan pelan sampai image loaded
     if (!imageLoaded && progress < 95) {
-        progress += Math.random() * 3; // Lebih lambat
+        progress += Math.random() * 3;
         loadingProgress.style.width = Math.min(progress, 95) + '%';
     }
 }, 200);
@@ -42,10 +41,8 @@ bgImage.onload = () => {
     console.log('Background image loaded successfully');
     imageLoaded = true;
     
-    // Apply background image
     imageBackground.style.backgroundImage = `url('${bgImage.src}')`;
     
-    // Setelah image loaded, complete progress bar dengan smooth
     const completeProgress = setInterval(() => {
         if (progress < 100) {
             progress += 2;
@@ -54,7 +51,6 @@ bgImage.onload = () => {
             clearInterval(completeProgress);
             clearInterval(progressInterval);
             
-            // Tunggu sebentar biar user liat 100%
             setTimeout(() => {
                 loadingScreen.classList.add('fade-out');
                 mainContainer.classList.add('show');
@@ -72,7 +68,6 @@ bgImage.onerror = () => {
     clearInterval(progressInterval);
     loadingProgress.style.width = '100%';
     
-    // Set fallback gradient background
     imageBackground.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
     
     loadingScreen.classList.add('fade-out');
@@ -118,6 +113,18 @@ form.addEventListener('submit', async (e) => {
         return;
     }
     
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+        alert('Ukuran gambar maksimal 5MB!');
+        return;
+    }
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+        alert('File harus berupa gambar!');
+        return;
+    }
+    
     // Show loading
     loading.classList.remove('hidden');
     result.classList.add('hidden');
@@ -138,24 +145,37 @@ form.addEventListener('submit', async (e) => {
         
         console.log('Sending request to generate function...');
         
+        // Set timeout for fetch
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout
+        
         // Call Netlify Function
         const response = await fetch('/.netlify/functions/generate', {
             method: 'POST',
-            body: formData
+            body: formData,
+            signal: controller.signal
         });
+        
+        clearTimeout(timeoutId);
         
         console.log('Response status:', response.status);
         
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Generate failed');
+            let errorMessage = 'Generate failed';
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.error || errorMessage;
+            } catch (e) {
+                errorMessage = `Server error: ${response.status}`;
+            }
+            throw new Error(errorMessage);
         }
         
         const data = await response.json();
         console.log('Generated successfully:', data);
         
         if (!data.success || !data.imageUrl) {
-            throw new Error('Invalid response from server');
+            throw new Error(data.error || 'Invalid response from server');
         }
         
         // Show result
@@ -163,10 +183,17 @@ form.addEventListener('submit', async (e) => {
         result.classList.remove('hidden');
         loading.classList.add('hidden');
         
-        // Setup download
+        // Setup download with error handling
         downloadBtn.onclick = async () => {
             try {
                 console.log('Downloading image...');
+                downloadBtn.disabled = true;
+                downloadBtn.innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="animation: spin 1s linear infinite;">
+                        <path d="M12 4V2m0 20v-2m8-8h2M2 12h2m13.66-5.66l1.41-1.41M4.93 19.07l1.41-1.41m0-11.32L4.93 4.93m14.14 14.14l-1.41-1.41" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Downloading...
+                `;
                 
                 const downloadResponse = await fetch('/.netlify/functions/download', {
                     method: 'POST',
@@ -191,13 +218,34 @@ form.addEventListener('submit', async (e) => {
                 console.log('Download complete');
             } catch (error) {
                 console.error('Download error:', error);
-                alert('Gagal download gambar: ' + error.message);
+                alert('Gagal download gambar: ' + error.message + '. Silakan coba lagi.');
+            } finally {
+                downloadBtn.disabled = false;
+                downloadBtn.innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2z" fill="currentColor"/>
+                    </svg>
+                    Download
+                `;
             }
         };
         
     } catch (error) {
         console.error('Error:', error);
-        alert('Terjadi kesalahan saat generate quote: ' + error.message);
+        
+        let errorMessage = 'Terjadi kesalahan saat generate quote: ';
+        
+        if (error.name === 'AbortError') {
+            errorMessage += 'Waktu habis. Server mungkin sedang sibuk. Silakan coba lagi.';
+        } else if (error.message.includes('Failed to fetch')) {
+            errorMessage += 'Koneksi gagal. Periksa koneksi internet Anda.';
+        } else if (error.message.includes('Unexpected token')) {
+            errorMessage += 'Server mengembalikan respons yang tidak valid. Silakan coba lagi nanti.';
+        } else {
+            errorMessage += error.message;
+        }
+        
+        alert(errorMessage);
         loading.classList.add('hidden');
     } finally {
         generateBtn.disabled = false;
