@@ -1,0 +1,20 @@
+{
+  "name": "fake-fb-quotes",
+  "version": "1.0.0",
+  "description": "Fake FB Quotes Generator",
+  "main": "index.js",
+  "scripts": {
+    "start": "netlify dev",
+    "build": "echo 'Build complete'"
+  },
+  "keywords": ["facebook", "quotes", "generator"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "node-fetch": "^2.6.7",
+    "form-data": "^4.0.0"
+  },
+  "devDependencies": {
+    "netlify-cli": "^15.0.0"
+  }
+}
