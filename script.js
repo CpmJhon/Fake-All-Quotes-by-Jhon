@@ -109,7 +109,6 @@ function initSplashScreen() {
                     loadingStatus.innerHTML = `<i class="fas fa-${messageIndex === 1 ? 'network-wired' : messageIndex === 2 ? 'palette' : messageIndex === 3 ? 'rocket' : 'check-circle'}"></i> ${statusMessages[messageIndex].text}`;
                     updateProgress();
                 } else {
-                    // Splash screen selesai
                     setTimeout(() => {
                         splashScreen.classList.add('fade-out');
                         mainContent.classList.remove('hidden');
@@ -298,7 +297,6 @@ async function generateMockup() {
         
         const imageUrl = URL.createObjectURL(blob);
         
-        // Tampilkan hasil dengan tombol download (SATU TOMBOL SAJA)
         resultDiv.innerHTML = `
             <div class="result-content">
                 <img src="${imageUrl}" alt="Mockup Result" id="resultImage" style="max-width:100%; border-radius:1rem; box-shadow:0 8px 20px rgba(0,0,0,0.3);" />
@@ -307,53 +305,24 @@ async function generateMockup() {
                         <i class="fas fa-download"></i> Download Gambar
                     </button>
                 </div>
-                <p style="font-size: 0.7rem; color: #6c757d; margin-top: 12px; text-align: center;">
-                    💡 Klik tombol di atas untuk download langsung
-                </p>
             </div>
         `;
         
-        // Event handler untuk tombol download - LANGSUNG DOWNLOAD TANPA TAB BARU
         const downloadBtn = document.getElementById('downloadImageBtn');
         if (downloadBtn) {
             downloadBtn.onclick = async (e) => {
                 e.preventDefault();
-                e.stopPropagation();
-                
-                console.log('🖱️ Download button clicked');
-                
-                // Gunakan fungsi downloadImage yang sudah didefinisikan
                 if (typeof window.downloadImage === 'function') {
-                    const success = await window.downloadImage(imageUrl, `${activeFormat.id}_mockup_${Date.now()}.png`);
-                    if (!success) {
-                        console.log('Download failed, trying fallback method');
-                        // Fallback jika download gagal
-                        try {
-                            const a = document.createElement('a');
-                            a.href = imageUrl;
-                            a.download = `${activeFormat.id}_mockup_${Date.now()}.png`;
-                            document.body.appendChild(a);
-                            a.click();
-                            setTimeout(() => document.body.removeChild(a), 100);
-                        } catch (fallbackErr) {
-                            console.error('Fallback failed:', fallbackErr);
-                        }
-                    }
+                    await window.downloadImage(imageUrl, `${activeFormat.id}_mockup_${Date.now()}.png`);
                 } else {
-                    console.error('downloadImage function not found!');
-                    // Emergency fallback
-                    const a = document.createElement('a');
-                    a.href = imageUrl;
-                    a.download = `${activeFormat.id}_mockup_${Date.now()}.png`;
-                    document.body.appendChild(a);
-                    a.click();
-                    setTimeout(() => document.body.removeChild(a), 100);
+                    console.error('downloadImage function not found');
+                    window.open(imageUrl, '_blank');
                 }
             };
         }
         
         hideGenerateLoading(interval, progressFill, progressPercent, true);
-        if (window.showToast) window.showToast('✨ Mockup berhasil dibuat!', 'success');
+        if (window.showToast) window.showToast('Mockup berhasil dibuat!', 'success');
         
     } catch (err) {
         console.error('Generate error:', err);
@@ -369,11 +338,68 @@ async function generateMockup() {
     }
 }
 
+// ========== NAVBAR & PAGE NAVIGATION ==========
+function initNavigation() {
+    const navLinks = document.querySelectorAll('.nav-link');
+    const pages = {
+        home: document.getElementById('homePage'),
+        howto: document.getElementById('howtoPage'),
+        guide: document.getElementById('guidePage'),
+        docs: document.getElementById('docsPage')
+    };
+    
+    function switchPage(pageId) {
+        Object.values(pages).forEach(page => {
+            if (page) page.classList.remove('active-page');
+        });
+        
+        if (pages[pageId]) {
+            pages[pageId].classList.add('active-page');
+        }
+        
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.dataset.page === pageId) {
+                link.classList.add('active');
+            }
+        });
+        
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const pageId = link.dataset.page;
+            if (pageId) switchPage(pageId);
+        });
+    });
+    
+    const navToggle = document.getElementById('navToggle');
+    const navMenu = document.getElementById('navMenu');
+    
+    if (navToggle && navMenu) {
+        navToggle.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+        });
+        
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                navMenu.classList.remove('active');
+            });
+        });
+    }
+    
+    switchPage('home');
+}
+
 // ========== INITIALIZATION ==========
 document.addEventListener('DOMContentLoaded', () => {
     initSplashScreen();
     renderFormatGrid();
     renderParamForm();
+    initNavigation();
+    
     const generateBtn = document.getElementById('generateBtn');
     if (generateBtn) {
         generateBtn.addEventListener('click', generateMockup);
