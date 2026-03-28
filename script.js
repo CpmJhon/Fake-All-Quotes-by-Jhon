@@ -298,50 +298,62 @@ async function generateMockup() {
         
         const imageUrl = URL.createObjectURL(blob);
         
-        // Tampilkan hasil dengan 2 opsi download
+        // Tampilkan hasil dengan tombol download (SATU TOMBOL SAJA)
         resultDiv.innerHTML = `
             <div class="result-content">
                 <img src="${imageUrl}" alt="Mockup Result" id="resultImage" style="max-width:100%; border-radius:1rem; box-shadow:0 8px 20px rgba(0,0,0,0.3);" />
-                <div class="button-group">
+                <div style="margin-top: 20px; text-align: center;">
                     <button class="download-btn" id="downloadImageBtn">
                         <i class="fas fa-download"></i> Download Gambar
                     </button>
-                    <button class="download-btn download-btn-alt" id="openInNewTabBtn">
-                        <i class="fas fa-external-link-alt"></i> Buka di Tab Baru
-                    </button>
                 </div>
-                <p style="font-size: 0.7rem; color: #6c757d; margin-top: 12px;">
-                    💡 Tips: Jika download tidak berfungsi, gunakan opsi "Buka di Tab Baru" lalu klik kanan > Save Image As
+                <p style="font-size: 0.7rem; color: #6c757d; margin-top: 12px; text-align: center;">
+                    💡 Klik tombol di atas untuk download langsung
                 </p>
             </div>
         `;
         
-        // Event handler untuk tombol download
+        // Event handler untuk tombol download - LANGSUNG DOWNLOAD TANPA TAB BARU
         const downloadBtn = document.getElementById('downloadImageBtn');
         if (downloadBtn) {
-            downloadBtn.onclick = (e) => {
+            downloadBtn.onclick = async (e) => {
                 e.preventDefault();
+                e.stopPropagation();
+                
+                console.log('🖱️ Download button clicked');
+                
+                // Gunakan fungsi downloadImage yang sudah didefinisikan
                 if (typeof window.downloadImage === 'function') {
-                    window.downloadImage(imageUrl, `${activeFormat.id}_mockup_${Date.now()}.png`);
+                    const success = await window.downloadImage(imageUrl, `${activeFormat.id}_mockup_${Date.now()}.png`);
+                    if (!success) {
+                        console.log('Download failed, trying fallback method');
+                        // Fallback jika download gagal
+                        try {
+                            const a = document.createElement('a');
+                            a.href = imageUrl;
+                            a.download = `${activeFormat.id}_mockup_${Date.now()}.png`;
+                            document.body.appendChild(a);
+                            a.click();
+                            setTimeout(() => document.body.removeChild(a), 100);
+                        } catch (fallbackErr) {
+                            console.error('Fallback failed:', fallbackErr);
+                        }
+                    }
                 } else {
-                    console.error('downloadImage not found, using fallback');
-                    window.open(imageUrl, '_blank');
+                    console.error('downloadImage function not found!');
+                    // Emergency fallback
+                    const a = document.createElement('a');
+                    a.href = imageUrl;
+                    a.download = `${activeFormat.id}_mockup_${Date.now()}.png`;
+                    document.body.appendChild(a);
+                    a.click();
+                    setTimeout(() => document.body.removeChild(a), 100);
                 }
             };
         }
         
-        // Event handler untuk tombol buka di tab baru
-        const openTabBtn = document.getElementById('openInNewTabBtn');
-        if (openTabBtn) {
-            openTabBtn.onclick = (e) => {
-                e.preventDefault();
-                window.open(imageUrl, '_blank');
-                if (window.showToast) window.showToast('Gambar dibuka di tab baru', 'info');
-            };
-        }
-        
         hideGenerateLoading(interval, progressFill, progressPercent, true);
-        if (window.showToast) window.showToast('Mockup berhasil dibuat!', 'success');
+        if (window.showToast) window.showToast('✨ Mockup berhasil dibuat!', 'success');
         
     } catch (err) {
         console.error('Generate error:', err);
