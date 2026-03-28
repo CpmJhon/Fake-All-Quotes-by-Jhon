@@ -2,117 +2,60 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Generate postingan Facebook palsu dengan mudah">
-    <meta name="author" content="Fake FB Quotes">
-    <title>Fake FB Quotes Generator</title>
-    <link rel="stylesheet" href="./style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>QuickFake · Mockup Generator Instan</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <!-- Loading Screen -->
-    <div id="loadingScreen" class="loading-screen">
-        <div class="loading-content">
-            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" class="loading-logo">
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" fill="#ffffff"/>
-            </svg>
-            <div class="loading-bar">
-                <div class="loading-progress" id="loadingProgress"></div>
+
+    <div class="bg-gradient"></div>
+
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-bolt"></i>
+                <h1>Quick<span>Fake</span></h1>
             </div>
-            <p class="loading-text">Loading<span class="dots"></span></p>
-        </div>
-    </div>
+            <p class="tagline">Generator mockup kekinian • hasil instan • gratis</p>
+        </header>
 
-    <!-- Image Background -->
-    <div class="image-background" id="imageBackground"></div>
-    
-    <div class="overlay"></div>
-
-    <div class="container" id="mainContainer">
-        <div class="header">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" class="fb-icon">
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" fill="#ffffff"/>
-            </svg>
-            <h1>Fake FB Quotes</h1>
-        </div>
-        <p class="subtitle">Generate postingan Facebook palsu dengan mudah</p>
-
-        <form id="quoteForm">
-            <div class="form-group">
-                <label for="image">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                        <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" fill="currentColor"/>
-                    </svg>
-                    Foto Profil
-                </label>
-                <div class="file-input-wrapper">
-                    <input type="file" id="image" accept="image/*" required>
-                    <label for="image" class="file-input-label">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" fill="currentColor"/>
-                        </svg>
-                        <span id="fileName">Pilih gambar...</span>
-                    </label>
+        <div class="main-card">
+            <!-- Pilihan Format -->
+            <div class="format-section">
+                <label><i class="fas fa-layer-group"></i> Pilih Format Mockup</label>
+                <div class="format-grid" id="formatGrid">
+                    <!-- diisi JS -->
                 </div>
             </div>
 
-            <div class="form-group">
-                <label for="name">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor"/>
-                    </svg>
-                    Nama
-                </label>
-                <input type="text" id="name" placeholder="Masukkan nama..." required>
+            <!-- Parameter Form -->
+            <div class="param-section" id="paramSection">
+                <label><i class="fas fa-sliders-h"></i> Isi Parameter</label>
+                <div class="param-form" id="paramForm">
+                    <!-- form dinamis -->
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="comment">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                        <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" fill="currentColor"/>
-                    </svg>
-                    Komentar
-                </label>
-                <textarea id="comment" placeholder="Tulis komentar..." required></textarea>
-            </div>
-
-            <button type="submit" class="btn-generate" id="generateBtn">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" fill="currentColor"/>
-                </svg>
-                Generate Quote
-            </button>
-        </form>
-
-        <div id="loading" class="loading hidden">
-            <div class="spinner"></div>
-            <p>Generating your quote...</p>
-        </div>
-
-        <div id="result" class="result hidden">
-            <h3>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor"/>
-                </svg>
-                Hasil Generate
-            </h3>
-            <img id="resultImage" alt="Generated Quote">
-            <div class="result-actions">
-                <button class="btn-download" id="downloadBtn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                        <path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2z" fill="currentColor"/>
-                    </svg>
-                    Download
-                </button>
-                <button class="btn-reset" id="resetBtn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                        <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" fill="currentColor"/>
-                    </svg>
-                    Reset
-                </button>
+            <!-- Tombol Generate & Hasil -->
+            <div class="action-section">
+                <button id="generateBtn" class="btn-generate"><i class="fas fa-magic"></i> Generate Sekarang</button>
+                <div id="resultArea" class="result-area">
+                    <div class="result-placeholder">
+                        <i class="fas fa-image"></i>
+                        <p>Hasil mockup akan tampil di sini</p>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <footer>
+            <p>⚡ QuickFake — gunakan dengan bijak untuk keperluan kreatif & edukasi</p>
+        </footer>
     </div>
 
     <script src="script.js"></script>
+    <script src="download.js"></script>
 </body>
 </html>
