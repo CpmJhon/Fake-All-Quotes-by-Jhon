@@ -59,12 +59,12 @@ function initSplashScreen() {
     const loadingStatus = document.getElementById('loadingStatus');
     
     const messages = [
-        { text: '🎨 Loading features...', progress: 10 },
+        { text: '🎨 Loading features...', progress: 5 },
         { text: '⚡ Connecting to API...', progress: 20 },
-        { text: '✨ Preparing generators...', progress: 30 },
-        { text: '📸 Adding SSWeb...', progress: 50 },
+        { text: '✨ Preparing generators...', progress: 35 },
+        { text: '📸 Adding SSWeb...', progress: 55 },
         { text: '📸 Adding Mockup Generator...', progress: 75 },
-        { text: '✨ QuickFake By Jhon...', progress: 80 },
+        { text: '✨ QuickFake By Jhon...', progress: 85 },
         { text: '🎉 Welcome to QuickFake!', progress: 100 }
     ];
     
