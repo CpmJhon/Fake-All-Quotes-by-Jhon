@@ -50,7 +50,7 @@ const formats = [
 
 let activeFormat = formats[0];
 
-// Splash Screen
+// ========== SPLASH SCREEN ==========
 function initSplashScreen() {
     const splashScreen = document.getElementById('splashScreen');
     const mainContent = document.getElementById('mainContent');
@@ -62,7 +62,7 @@ function initSplashScreen() {
         { text: '🎨 Loading features...', progress: 20 },
         { text: '⚡ Connecting to API...', progress: 40 },
         { text: '✨ Preparing generators...', progress: 60 },
-        { text: '🚀 Almost ready...', progress: 80 },
+        { text: '📸 Adding SSWeb...', progress: 80 },
         { text: '🎉 Welcome to QuickFake!', progress: 100 }
     ];
     
@@ -82,7 +82,8 @@ function initSplashScreen() {
                 clearInterval(interval);
                 if (msgIndex < messages.length - 1) {
                     msgIndex++;
-                    loadingStatus.innerHTML = `<i class="fas fa-${msgIndex === 1 ? 'network-wired' : msgIndex === 2 ? 'palette' : 'rocket'}"></i> ${messages[msgIndex].text}`;
+                    const icons = ['', 'network-wired', 'palette', 'camera', 'check-circle'];
+                    loadingStatus.innerHTML = `<i class="fas fa-${icons[msgIndex]}"></i> ${messages[msgIndex].text}`;
                     updateProgress();
                 } else {
                     setTimeout(() => {
@@ -106,6 +107,7 @@ function createParticles() {
     for (let i = 0; i < 30; i++) {
         const p = document.createElement('div');
         p.className = 'particle';
+        p.style.position = 'absolute';
         p.style.left = Math.random() * 100 + '%';
         p.style.animationDelay = Math.random() * 3 + 's';
         p.style.animationDuration = 2 + Math.random() * 2 + 's';
@@ -114,21 +116,21 @@ function createParticles() {
     }
 }
 
-// Generate Loading
-function showGenerateLoading() {
-    const btn = document.getElementById('generateBtn');
-    const loading = document.getElementById('generateLoading');
-    const fill = document.getElementById('generateProgressFill');
-    const percent = document.getElementById('generateProgressPercent');
-    const msg = document.getElementById('generateLoadingMessage');
+// ========== GENERATE LOADING ==========
+function showGenerateLoading(prefix = '') {
+    const btn = document.getElementById(`${prefix}generateBtn`);
+    const loading = document.getElementById(`${prefix}generateLoading`);
+    const fill = document.getElementById(`${prefix}generateProgressFill`);
+    const percent = document.getElementById(`${prefix}generateProgressPercent`);
+    const msg = document.getElementById(`${prefix}generateLoadingMessage`);
     
-    btn.classList.add('hidden');
-    loading.classList.remove('hidden');
+    if (btn) btn.classList.add('hidden');
+    if (loading) loading.classList.remove('hidden');
     
     const texts = [
-        { icon: 'fa-paintbrush-fine', text: 'Creating mockup...' },
-        { icon: 'fa-cogs', text: 'Processing image...' },
-        { icon: 'fa-magic', text: 'Applying effects...' }
+        { icon: 'fa-paintbrush-fine', text: 'Processing...' },
+        { icon: 'fa-cogs', text: 'Almost there...' },
+        { icon: 'fa-magic', text: 'Finalizing...' }
     ];
     
     let progress = 0, idx = 0;
@@ -136,33 +138,37 @@ function showGenerateLoading() {
         if (progress < 95) {
             progress += Math.random() * 12;
             if (progress > 95) progress = 95;
-            fill.style.width = progress + '%';
-            percent.textContent = Math.floor(progress);
+            if (fill) fill.style.width = progress + '%';
+            if (percent) percent.textContent = Math.floor(progress);
         }
-        if (progress >= 30 && idx === 0) { idx++; msg.innerHTML = `<i class="fas ${texts[1].icon}"></i> ${texts[1].text}`; }
-        if (progress >= 60 && idx === 1) { idx++; msg.innerHTML = `<i class="fas ${texts[2].icon}"></i> ${texts[2].text}`; }
+        if (progress >= 30 && idx === 0 && msg) { idx++; msg.innerHTML = `<i class="fas ${texts[1].icon}"></i> ${texts[1].text}`; }
+        if (progress >= 60 && idx === 1 && msg) { idx++; msg.innerHTML = `<i class="fas ${texts[2].icon}"></i> ${texts[2].text}`; }
     }, 180);
     
     return { interval, fill, percent };
 }
 
-function hideGenerateLoading(loading, fill, percent, success = true) {
+function hideGenerateLoading(loading, fill, percent, success = true, prefix = '') {
     if (loading) clearInterval(loading);
-    const btn = document.getElementById('generateBtn');
-    const container = document.getElementById('generateLoading');
+    const btn = document.getElementById(`${prefix}generateBtn`);
+    const container = document.getElementById(`${prefix}generateLoading`);
     if (success && fill && percent) {
         fill.style.width = '100%';
         percent.textContent = '100';
-        setTimeout(() => { container.classList.add('hidden'); btn.classList.remove('hidden'); }, 500);
+        setTimeout(() => { 
+            if (container) container.classList.add('hidden'); 
+            if (btn) btn.classList.remove('hidden'); 
+        }, 500);
     } else {
-        container.classList.add('hidden');
-        btn.classList.remove('hidden');
+        if (container) container.classList.add('hidden');
+        if (btn) btn.classList.remove('hidden');
     }
 }
 
-// Render Functions
+// ========== MOCKUP FUNCTIONS ==========
 function renderFormatGrid() {
     const grid = document.getElementById('formatGrid');
+    if (!grid) return;
     grid.innerHTML = formats.map(f => `
         <div class="format-item ${activeFormat.id === f.id ? 'active' : ''}" data-id="${f.id}">
             <i class="${f.icon}"></i> ${f.name}
@@ -174,13 +180,15 @@ function renderFormatGrid() {
             activeFormat = formats.find(f => f.id === el.dataset.id);
             renderFormatGrid();
             renderParamForm();
-            document.getElementById('resultArea').innerHTML = `<div class="result-placeholder"><i class="fas fa-image"></i><p>Hasil mockup akan tampil di sini</p></div>`;
+            const resultArea = document.getElementById('resultArea');
+            if (resultArea) resultArea.innerHTML = `<div class="result-placeholder"><i class="fas fa-image"></i><p>Hasil mockup akan tampil di sini</p></div>`;
         });
     });
 }
 
 function renderParamForm() {
     const container = document.getElementById('paramForm');
+    if (!container) return;
     if (!activeFormat.params?.length) {
         container.innerHTML = '<div class="input-group"><p style="color:#9ca3af;">Tidak ada parameter</p></div>';
         return;
@@ -195,7 +203,6 @@ function renderParamForm() {
     `).join('');
 }
 
-// Generate Mockup
 async function generateMockup() {
     const resultDiv = document.getElementById('resultArea');
     const inputs = document.querySelectorAll('#paramForm input, #paramForm textarea');
@@ -207,7 +214,7 @@ async function generateMockup() {
         return;
     }
     
-    const { interval, fill, percent } = showGenerateLoading();
+    const { interval, fill, percent } = showGenerateLoading('');
     
     let apiUrl = `https://api.zenzxz.my.id${activeFormat.endpoint}?`;
     apiUrl += Object.entries(params).map(([k, v]) => `${k}=${v}`).join('&');
@@ -247,21 +254,88 @@ async function generateMockup() {
             };
         }
         
-        hideGenerateLoading(interval, fill, percent, true);
+        hideGenerateLoading(interval, fill, percent, true, '');
         if (window.showToast) window.showToast('Mockup berhasil dibuat!', 'success');
         
     } catch (err) {
         resultDiv.innerHTML = `<div class="result-placeholder"><i class="fas fa-times-circle"></i><p>Gagal: ${err.message}</p></div>`;
-        hideGenerateLoading(interval, fill, percent, false);
+        hideGenerateLoading(interval, fill, percent, false, '');
         if (window.showToast) window.showToast(err.message, 'error');
     }
 }
 
-// Navigation
+// ========== SSWEB FUNCTIONS ==========
+async function generateSSWeb() {
+    const url = document.getElementById('sswebUrl')?.value;
+    const device = document.getElementById('sswebDevice')?.value || 'desktop';
+    const fullPage = document.getElementById('sswebFullPage')?.value || 'penuh';
+    const scale = document.getElementById('sswebScale')?.value || '2';
+    
+    if (!url) {
+        if (window.showToast) window.showToast('Masukkan URL website terlebih dahulu', 'error');
+        return;
+    }
+    
+    const resultDiv = document.getElementById('sswebResultArea');
+    const { interval, fill, percent } = showGenerateLoading('ssweb');
+    
+    let apiUrl = `https://api.zenzxz.my.id/tools/ssweb?url=${encodeURIComponent(url)}`;
+    if (device) apiUrl += `&device=${device}`;
+    if (fullPage) apiUrl += `&full_page=${fullPage}`;
+    if (scale) apiUrl += `&scale=${scale}`;
+    
+    try {
+        const response = await fetch(apiUrl, { method: 'GET', mode: 'cors' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        
+        const data = await response.json();
+        
+        if (!data.status || !data.result?.url) {
+            throw new Error(data.message || 'Gagal mengambil screenshot');
+        }
+        
+        const imageUrl = data.result.url;
+        
+        resultDiv.innerHTML = `
+            <div class="result-content">
+                <img src="${imageUrl}" alt="Screenshot" style="max-width:100%; border-radius:1rem; box-shadow:0 8px 20px rgba(0,0,0,0.3);" />
+                <div style="margin-top:20px; text-align:center;">
+                    <button class="download-btn" id="sswebDownloadBtn">
+                        <i class="fas fa-download"></i> Download Screenshot
+                    </button>
+                </div>
+                <p style="font-size:0.7rem; color:#6c757d; margin-top:12px;">📸 ${url}</p>
+            </div>
+        `;
+        
+        const downloadBtn = document.getElementById('sswebDownloadBtn');
+        if (downloadBtn) {
+            downloadBtn.onclick = async (e) => {
+                e.preventDefault();
+                if (typeof window.downloadImage === 'function') {
+                    await window.downloadImage(imageUrl, `screenshot_${Date.now()}.png`);
+                } else {
+                    window.open(imageUrl, '_blank');
+                }
+            };
+        }
+        
+        hideGenerateLoading(interval, fill, percent, true, 'ssweb');
+        if (window.showToast) window.showToast('Screenshot berhasil diambil!', 'success');
+        
+    } catch (err) {
+        resultDiv.innerHTML = `<div class="result-placeholder"><i class="fas fa-times-circle"></i><p>Gagal: ${err.message}</p></div>`;
+        hideGenerateLoading(interval, fill, percent, false, 'ssweb');
+        if (window.showToast) window.showToast(err.message, 'error');
+    }
+}
+
+// ========== NAVIGATION ==========
 function initNavigation() {
     const links = document.querySelectorAll('.nav-link');
     const pages = {
         home: document.getElementById('homePage'),
+        ssweb: document.getElementById('sswebPage'),
         howto: document.getElementById('howtoPage'),
         guide: document.getElementById('guidePage'),
         docs: document.getElementById('docsPage')
@@ -271,7 +345,8 @@ function initNavigation() {
         Object.values(pages).forEach(p => p?.classList.remove('active-page'));
         if (pages[pageId]) pages[pageId].classList.add('active-page');
         links.forEach(l => l.classList.remove('active'));
-        document.querySelector(`.nav-link[data-page="${pageId}"]`)?.classList.add('active');
+        const activeLink = document.querySelector(`.nav-link[data-page="${pageId}"]`);
+        if (activeLink) activeLink.classList.add('active');
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     
@@ -283,18 +358,26 @@ function initNavigation() {
         });
     });
     
-    document.getElementById('navToggle')?.addEventListener('click', () => {
-        document.getElementById('navMenu')?.classList.toggle('active');
-    });
+    const navToggle = document.getElementById('navToggle');
+    if (navToggle) {
+        navToggle.addEventListener('click', () => {
+            document.getElementById('navMenu')?.classList.toggle('active');
+        });
+    }
     
     switchPage('home');
 }
 
-// Initialize
+// ========== INITIALIZATION ==========
 document.addEventListener('DOMContentLoaded', () => {
     initSplashScreen();
     renderFormatGrid();
     renderParamForm();
     initNavigation();
-    document.getElementById('generateBtn')?.addEventListener('click', generateMockup);
+    
+    const generateBtn = document.getElementById('generateBtn');
+    if (generateBtn) generateBtn.addEventListener('click', generateMockup);
+    
+    const sswebBtn = document.getElementById('sswebGenerateBtn');
+    if (sswebBtn) sswebBtn.addEventListener('click', generateSSWeb);
 });
