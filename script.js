@@ -165,6 +165,23 @@ function hideGenerateLoading(loading, fill, percent, success = true, prefix = ''
     }
 }
 
+// ========== FUNGSI HAPUS HASIL ==========
+function clearMockupResult() {
+    const resultArea = document.getElementById('resultArea');
+    if (resultArea) {
+        resultArea.innerHTML = `<div class="result-placeholder"><i class="fas fa-image"></i><p>Hasil mockup akan tampil di sini</p></div>`;
+        if (window.showToast) window.showToast('Hasil mockup telah dihapus', 'info');
+    }
+}
+
+function clearSSWebResult() {
+    const resultArea = document.getElementById('sswebResultArea');
+    if (resultArea) {
+        resultArea.innerHTML = `<div class="result-placeholder"><i class="fas fa-camera"></i><p>Screenshot website akan tampil di sini</p></div>`;
+        if (window.showToast) window.showToast('Hasil screenshot telah dihapus', 'info');
+    }
+}
+
 // ========== MOCKUP FUNCTIONS ==========
 function renderFormatGrid() {
     const grid = document.getElementById('formatGrid');
@@ -389,4 +406,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const sswebBtn = document.getElementById('sswebGenerateBtn');
     if (sswebBtn) sswebBtn.addEventListener('click', generateSSWeb);
+    
+    const clearMockupBtn = document.getElementById('clearMockupResultBtn');
+    if (clearMockupBtn) clearMockupBtn.addEventListener('click', clearMockupResult);
+    
+    const clearSSWebBtn = document.getElementById('clearSSWebResultBtn');
+    if (clearSSWebBtn) clearSSWebBtn.addEventListener('click', clearSSWebResult);
 });
