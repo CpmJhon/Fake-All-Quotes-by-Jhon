@@ -165,23 +165,6 @@ function hideGenerateLoading(loading, fill, percent, success = true, prefix = ''
     }
 }
 
-// ========== FUNGSI HAPUS HASIL ==========
-function clearMockupResult() {
-    const resultArea = document.getElementById('resultArea');
-    if (resultArea) {
-        resultArea.innerHTML = `<div class="result-placeholder"><i class="fas fa-image"></i><p>Hasil mockup akan tampil di sini</p></div>`;
-        if (window.showToast) window.showToast('Hasil mockup telah dihapus', 'info');
-    }
-}
-
-function clearSSWebResult() {
-    const resultArea = document.getElementById('sswebResultArea');
-    if (resultArea) {
-        resultArea.innerHTML = `<div class="result-placeholder"><i class="fas fa-camera"></i><p>Screenshot website akan tampil di sini</p></div>`;
-        if (window.showToast) window.showToast('Hasil screenshot telah dihapus', 'info');
-    }
-}
-
 // ========== MOCKUP FUNCTIONS ==========
 function renderFormatGrid() {
     const grid = document.getElementById('formatGrid');
@@ -284,15 +267,34 @@ async function generateMockup() {
     }
 }
 
-// ========== SSWEB FUNCTIONS ==========
+// ========== SSWEB FUNCTIONS (DENGAN VALIDASI SEMUA PARAMETER) ==========
 async function generateSSWeb() {
     const url = document.getElementById('sswebUrl')?.value;
-    const device = document.getElementById('sswebDevice')?.value || 'desktop';
-    const fullPage = document.getElementById('sswebFullPage')?.value || 'penuh';
-    const scale = document.getElementById('sswebScale')?.value || '2';
+    const device = document.getElementById('sswebDevice')?.value;
+    const fullPage = document.getElementById('sswebFullPage')?.value;
+    const scale = document.getElementById('sswebScale')?.value;
     
+    // Validasi URL
     if (!url) {
         if (window.showToast) window.showToast('Masukkan URL website terlebih dahulu', 'error');
+        return;
+    }
+    
+    // Validasi perangkat
+    if (!device) {
+        if (window.showToast) window.showToast('Pilih perangkat (Desktop/Mobile/Tablet)', 'error');
+        return;
+    }
+    
+    // Validasi halaman penuh
+    if (!fullPage) {
+        if (window.showToast) window.showToast('Pilih opsi Halaman Penuh (Ya/Tidak)', 'error');
+        return;
+    }
+    
+    // Validasi skala
+    if (!scale) {
+        if (window.showToast) window.showToast('Pilih skala (1x/2x/3x)', 'error');
         return;
     }
     
@@ -304,11 +306,14 @@ async function generateSSWeb() {
     if (fullPage) apiUrl += `&full_page=${fullPage}`;
     if (scale) apiUrl += `&scale=${scale}`;
     
+    console.log('SSWeb Request:', apiUrl);
+    
     try {
         const response = await fetch(apiUrl, { method: 'GET', mode: 'cors' });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         
         const data = await response.json();
+        console.log('SSWeb Response:', data);
         
         if (!data.status || !data.result?.url) {
             throw new Error(data.message || 'Gagal mengambil screenshot');
@@ -350,7 +355,14 @@ async function generateSSWeb() {
         if (window.showToast) window.showToast('Screenshot berhasil diambil!', 'success');
         
     } catch (err) {
-        resultDiv.innerHTML = `<div class="result-placeholder"><i class="fas fa-times-circle"></i><p>Gagal: ${err.message}</p></div>`;
+        console.error('SSWeb Error:', err);
+        resultDiv.innerHTML = `
+            <div class="result-placeholder">
+                <i class="fas fa-times-circle"></i>
+                <p>❌ Gagal: ${err.message}</p>
+                <p style="font-size:0.8rem; margin-top:8px;">Pastikan URL valid dan semua parameter telah diisi</p>
+            </div>
+        `;
         hideGenerateLoading(interval, fill, percent, false, 'ssweb');
         if (window.showToast) window.showToast(err.message, 'error');
     }
@@ -406,10 +418,4 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const sswebBtn = document.getElementById('sswebGenerateBtn');
     if (sswebBtn) sswebBtn.addEventListener('click', generateSSWeb);
-    
-    const clearMockupBtn = document.getElementById('clearMockupResultBtn');
-    if (clearMockupBtn) clearMockupBtn.addEventListener('click', clearMockupResult);
-    
-    const clearSSWebBtn = document.getElementById('clearSSWebResultBtn');
-    if (clearSSWebBtn) clearSSWebBtn.addEventListener('click', clearSSWebResult);
 });

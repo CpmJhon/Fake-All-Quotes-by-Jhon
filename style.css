@@ -587,32 +587,6 @@ label {
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
-/* Tombol Hapus */
-.btn-clear {
-    background: rgba(239, 68, 68, 0.2);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    padding: 10px 20px;
-    border-radius: 2rem;
-    color: #ef4444;
-    font-weight: 500;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s ease;
-    font-size: 0.9rem;
-}
-
-.btn-clear:hover {
-    background: rgba(239, 68, 68, 0.3);
-    border-color: #ef4444;
-    transform: translateY(-2px);
-}
-
-.btn-clear:active {
-    transform: translateY(0);
-}
-
 /* Toast Notification */
 .toast-notification {
     position: fixed;

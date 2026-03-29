@@ -120,12 +120,6 @@
                                 <p>Hasil mockup akan tampil di sini</p>
                             </div>
                         </div>
-                        
-                        <div style="margin-top: 20px; text-align: center;">
-                            <button id="clearMockupResultBtn" class="btn-clear">
-                                <i class="fas fa-trash-alt"></i> Hapus Hasil Mockup
-                            </button>
-                        </div>
                     </div>
                 </div>
 
@@ -135,7 +129,7 @@
             </div>
         </div>
 
-        <!-- PAGE: SSWEB (SCREENSHOT WEBSITE) -->
+        <!-- PAGE: SSWEB (SCREENSHOT WEBSITE) - PARAMETER KOSONG -->
         <div id="sswebPage" class="page-container">
             <div class="container">
                 <div class="main-card">
@@ -156,7 +150,8 @@
                             <div class="input-group">
                                 <label>Perangkat (Device)</label>
                                 <select id="sswebDevice">
-                                    <option value="desktop" selected>Desktop</option>
+                                    <option value="" selected disabled>-- Pilih Perangkat --</option>
+                                    <option value="desktop">Desktop</option>
                                     <option value="mobile">Mobile</option>
                                     <option value="tablet">Tablet</option>
                                 </select>
@@ -164,15 +159,17 @@
                             <div class="input-group">
                                 <label>Halaman Penuh (Full Page)</label>
                                 <select id="sswebFullPage">
-                                    <option value="penuh" selected>Ya (Penuh)</option>
+                                    <option value="" selected disabled>-- Pilih Opsi --</option>
+                                    <option value="penuh">Ya (Penuh)</option>
                                     <option value="tidak">Tidak (Halaman terlihat)</option>
                                 </select>
                             </div>
                             <div class="input-group">
                                 <label>Skala (Scale)</label>
                                 <select id="sswebScale">
+                                    <option value="" selected disabled>-- Pilih Skala --</option>
                                     <option value="1">1x (Normal)</option>
-                                    <option value="2" selected>2x (HD)</option>
+                                    <option value="2">2x (HD)</option>
                                     <option value="3">3x (Ultra HD)</option>
                                 </select>
                             </div>
@@ -204,12 +201,6 @@
                                 <i class="fas fa-camera"></i>
                                 <p>Screenshot website akan tampil di sini</p>
                             </div>
-                        </div>
-                        
-                        <div style="margin-top: 20px; text-align: center;">
-                            <button id="clearSSWebResultBtn" class="btn-clear">
-                                <i class="fas fa-trash-alt"></i> Hapus Hasil Screenshot
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -256,7 +247,8 @@
                         <ul>
                             <li><strong>SSWeb:</strong> Gunakan skala 2x atau 3x untuk hasil HD</li>
                             <li><strong>SSWeb:</strong> Pilih "Halaman Penuh: Ya" untuk screenshot seluruh halaman</li>
-                            <li>Gunakan tombol "Hapus Hasil" untuk membersihkan area hasil generate</li>
+                            <li>Gunakan URL gambar dari hosting gratis untuk mockup</li>
+                            <li>Semua parameter SSWeb wajib diisi sebelum mengambil screenshot</li>
                         </ul>
                     </div>
                 </div>
@@ -275,7 +267,7 @@
                     <div class="guide-section">
                         <h3><i class="fas fa-camera"></i> SSWeb</h3>
                         <p>Fitur untuk mengambil screenshot website secara instan.</p>
-                        <div class="guide-example"><strong>Parameter:</strong> URL, Perangkat, Halaman Penuh, Skala</div>
+                        <div class="guide-example"><strong>Parameter:</strong> URL (wajib), Perangkat, Halaman Penuh, Skala</div>
                     </div>
                     <div class="guide-section">
                         <h3><i class="fas fa-font"></i> Brat Text</h3>
@@ -292,6 +284,10 @@
                     <div class="guide-section">
                         <h3><i class="fab fa-instagram"></i> IG Post</h3>
                         <p>Mockup postingan Instagram.</p>
+                    </div>
+                    <div class="guide-section">
+                        <h3><i class="fab fa-tiktok"></i> TikTok Profile</h3>
+                        <p>Simulasi profil TikTok.</p>
                     </div>
                 </div>
             </div>
@@ -314,6 +310,7 @@
 Mockup: /maker/brat?text=
         /maker/fakecall?nama=&durasi=&avatar=
         /maker/fakegroup?url=&title=&number=&time=
+        /maker/fakeigpost?...
 
 SSWeb:   /tools/ssweb?url=&device=&full_page=&scale=</code></pre>
                         </div>
