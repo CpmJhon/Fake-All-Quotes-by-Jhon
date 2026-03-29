@@ -11,7 +11,6 @@ async function downloadImage(imageUrl, filename = 'screenshot.png') {
         
         if (!imageUrl) throw new Error('URL gambar tidak valid');
         
-        // Fetch gambar sebagai blob
         const response = await fetch(imageUrl, {
             method: 'GET',
             mode: 'cors',
@@ -30,7 +29,6 @@ async function downloadImage(imageUrl, filename = 'screenshot.png') {
             const text = await blob.text();
             const json = JSON.parse(text);
             if (json.result?.url) {
-                // Ambil URL gambar dari response JSON
                 const imageResponse = await fetch(json.result.url);
                 blob = await imageResponse.blob();
             } else {
@@ -41,10 +39,7 @@ async function downloadImage(imageUrl, filename = 'screenshot.png') {
         if (blob.size === 0) throw new Error('File kosong (0 bytes)');
         if (!blob.type.startsWith('image/')) throw new Error('Bukan format gambar');
         
-        // Buat URL object dari blob
         const blobUrl = URL.createObjectURL(blob);
-        
-        // Buat elemen link dan trigger download
         const link = document.createElement('a');
         link.href = blobUrl;
         link.download = filename;
@@ -52,13 +47,11 @@ async function downloadImage(imageUrl, filename = 'screenshot.png') {
         
         document.body.appendChild(link);
         
-        // Trigger click dengan delay
         setTimeout(() => {
             link.click();
             console.log('✅ Download triggered for:', filename);
         }, 50);
         
-        // Cleanup
         setTimeout(() => {
             document.body.removeChild(link);
             URL.revokeObjectURL(blobUrl);
@@ -72,7 +65,6 @@ async function downloadImage(imageUrl, filename = 'screenshot.png') {
         console.error('❌ Download error:', error);
         if (window.showToast) window.showToast('❌ Gagal: ' + error.message, 'error');
         
-        // Fallback: coba langsung buka URL
         try {
             console.log('🔄 Trying fallback...');
             const a = document.createElement('a');
