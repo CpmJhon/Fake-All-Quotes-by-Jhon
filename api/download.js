@@ -2,11 +2,11 @@
  * download.js - Auto Download Function
  */
 
-async function downloadImage(imageUrl, filename = 'mockup.png') {
+async function downloadImage(imageUrl, filename = 'screenshot.png') {
     console.log('📥 Downloading:', imageUrl);
     
     try {
-        if (window.showToast) window.showToast('⏳ Mengunduh gambar...', 'info');
+        if (window.showToast) window.showToast('⏳ Mengunduh...', 'info');
         
         if (!imageUrl) throw new Error('URL tidak valid');
         
