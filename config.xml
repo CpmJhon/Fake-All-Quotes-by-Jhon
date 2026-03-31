@@ -8,56 +8,24 @@
     <description>App built with APK Builder Pro</description>
     <content src="index.html"/>
     
-    <!-- Preferences -->
     <preference name="android-minSdkVersion" value="24"/>
     <preference name="android-targetSdkVersion" value="34"/>
-    <preference name="AndroidXEnabled" value="true"/>
     
-    <!-- ============ IZIN ANDROID ============ -->
-    <!-- Izin GPS / Lokasi -->
-    <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/uses-permission">
+    <!-- Izin Android (PASTIKAN INI ADA) -->
+    <config-file target="AndroidManifest.xml" parent="/manifest">
         <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
         <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    </edit-config>
-    
-    <!-- Izin Kamera -->
-    <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/uses-permission">
         <uses-permission android:name="android.permission.CAMERA" />
-    </edit-config>
-    
-    <!-- Izin Storage (Download File) -->
-    <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/uses-permission">
         <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
         <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    </edit-config>
-    
-    <!-- Izin Internet -->
-    <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/uses-permission">
         <uses-permission android:name="android.permission.INTERNET" />
-        <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    </edit-config>
-    <!-- ===================================== -->
+    </config-file>
     
-    <!-- Intent & Navigation -->
     <allow-navigation href="*"/>
     <allow-intent href="http://*/*"/>
     <allow-intent href="https://*/*"/>
-    <allow-intent href="tel:*"/>
-    <allow-intent href="mailto:*"/>
-    <allow-intent href="geo:*"/>
     
     <platform name="android">
         <icon src="res/icon.png"/>
-        
-        <!-- Tambahkan untuk request izin runtime Android 6+ -->
-        <config-file target="AndroidManifest.xml" parent="/manifest/application">
-            <provider android:name="androidx.core.content.FileProvider" 
-                      android:authorities="${applicationId}.fileprovider" 
-                      android:exported="false" 
-                      android:grantUriPermissions="true">
-                <meta-data android:name="android.support.FILE_PROVIDER_PATHS" 
-                           android:resource="@xml/file_paths"/>
-            </provider>
-        </config-file>
     </platform>
 </widget>
