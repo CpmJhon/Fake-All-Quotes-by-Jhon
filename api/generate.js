@@ -6,10 +6,11 @@ export default async function handler(req, res) {
     if (req.method === 'OPTIONS') return res.status(200).end();
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
     
-    const { endpoint, params } = req.body;
+    const { endpoint, params, baseUrl } = req.body;
     if (!endpoint) return res.status(400).json({ error: 'Endpoint required' });
     
-    let targetUrl = `https://api.zenzxz.my.id${endpoint}`;
+    const apiBaseUrl = baseUrl || 'https://api.zenzxz.my.id';
+    let targetUrl = `${apiBaseUrl}${endpoint}`;
     if (params && Object.keys(params).length) {
         targetUrl += `?${new URLSearchParams(params).toString()}`;
     }
