@@ -1,17 +1,15 @@
 /**
- * download.js - Auto Download Function (FIXED FOR ALL: Mockup + SSWeb)
+ * download.js - Auto Download Function
  */
 
 async function downloadImage(imageUrl, filename = 'screenshot.png') {
     console.log('📥 Downloading:', imageUrl);
-    console.log('📄 Filename:', filename);
     
     try {
         if (window.showToast) window.showToast('⏳ Mengunduh gambar...', 'info');
         
         if (!imageUrl) throw new Error('URL gambar tidak valid');
         
-        // Fetch gambar sebagai blob
         const response = await fetch(imageUrl, {
             method: 'GET',
             mode: 'cors',
@@ -21,16 +19,14 @@ async function downloadImage(imageUrl, filename = 'screenshot.png') {
             }
         });
         
-        if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
         
         let blob = await response.blob();
         
-        // Cek apakah response adalah JSON (untuk SSWeb)
         if (blob.type === 'application/json') {
             const text = await blob.text();
             const json = JSON.parse(text);
             if (json.result?.url) {
-                // Ambil URL gambar dari response JSON
                 const imageResponse = await fetch(json.result.url);
                 blob = await imageResponse.blob();
             } else {
@@ -38,54 +34,29 @@ async function downloadImage(imageUrl, filename = 'screenshot.png') {
             }
         }
         
-        if (blob.size === 0) throw new Error('File kosong (0 bytes)');
+        if (blob.size === 0) throw new Error('File kosong');
         if (!blob.type.startsWith('image/')) throw new Error('Bukan format gambar');
         
-        // Buat URL object dari blob
         const blobUrl = URL.createObjectURL(blob);
-        
-        // Buat elemen link dan trigger download
         const link = document.createElement('a');
         link.href = blobUrl;
         link.download = filename;
-        link.style.cssText = 'display: none; visibility: hidden;';
+        link.style.display = 'none';
         
         document.body.appendChild(link);
+        link.click();
         
-        // Trigger click dengan delay
-        setTimeout(() => {
-            link.click();
-            console.log('✅ Download triggered for:', filename);
-        }, 50);
-        
-        // Cleanup
         setTimeout(() => {
             document.body.removeChild(link);
             URL.revokeObjectURL(blobUrl);
-            console.log('🧹 Cleanup completed');
-        }, 500);
+        }, 100);
         
         if (window.showToast) window.showToast('✅ Download berhasil!', 'success');
         return true;
         
     } catch (error) {
-        console.error('❌ Download error:', error);
+        console.error('Download error:', error);
         if (window.showToast) window.showToast('❌ Gagal: ' + error.message, 'error');
-        
-        // Fallback: coba langsung buka URL
-        try {
-            console.log('🔄 Trying fallback...');
-            const a = document.createElement('a');
-            a.href = imageUrl;
-            a.download = filename;
-            a.target = '_blank';
-            document.body.appendChild(a);
-            a.click();
-            setTimeout(() => document.body.removeChild(a), 100);
-        } catch (fallbackErr) {
-            console.error('Fallback failed:', fallbackErr);
-        }
-        
         return false;
     }
 }
@@ -107,7 +78,6 @@ function createToast(message, type = 'info') {
     }, 3000);
 }
 
-// Tambah CSS toast jika belum ada
 if (!document.querySelector('#toast-styles')) {
     const style = document.createElement('style');
     style.id = 'toast-styles';
@@ -117,7 +87,7 @@ if (!document.querySelector('#toast-styles')) {
             background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);
             border-radius: 50px; padding: 12px 24px; display: flex; align-items: center; gap: 12px;
             color: white; font-size: 0.9rem; font-weight: 500; z-index: 10000;
-            transition: transform 0.3s ease; overflow: hidden; cursor: pointer;
+            transition: transform 0.3s ease; overflow: hidden;
         }
         .toast-notification.show { transform: translateX(-50%) translateY(0); }
         .toast-notification i { font-size: 1.2rem; }
@@ -139,4 +109,4 @@ if (!document.querySelector('#toast-styles')) {
 window.downloadImage = downloadImage;
 window.showToast = createToast;
 
-console.log('✅ download.js loaded - Auto download ready for all formats (Mockup + SSWeb)');
+console.log('✅ download.js loaded');
