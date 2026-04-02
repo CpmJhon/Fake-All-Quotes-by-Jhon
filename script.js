@@ -56,6 +56,96 @@ const formats = [
 
 let activeFormat = formats[0];
 
+// ========== VERIFICATION GATE ==========
+let isFollowed = false;
+let isShared = false;
+let verificationCompleted = false;
+
+// Cek apakah user sudah pernah verifikasi sebelumnya (localStorage)
+if (localStorage.getItem('quickfake_verified') === 'true') {
+    verificationCompleted = true;
+    document.getElementById('gatePage').classList.add('hidden');
+    document.getElementById('splashScreen').style.display = 'flex';
+    // Lanjutkan ke splash screen dan main content
+    initSplashScreen();
+    renderFormatGrid();
+    renderParamForm();
+    initNavigation();
+    
+    const generateBtn = document.getElementById('generateBtn');
+    if (generateBtn) generateBtn.addEventListener('click', generateMockup);
+    
+    const sswebBtn = document.getElementById('sswebGenerateBtn');
+    if (sswebBtn) sswebBtn.addEventListener('click', generateSSWeb);
+} else {
+    // Tampilkan gate page, sembunyikan main content
+    document.getElementById('gatePage').style.display = 'flex';
+    document.getElementById('splashScreen').style.display = 'none';
+    document.getElementById('mainContent').classList.add('hidden');
+}
+
+function followSaluran() {
+    // Link saluran WhatsApp
+    window.open('https://whatsapp.com/channel/0029VaLiUSS5q08hPj5mcH0m', '_blank');
+    isFollowed = true;
+    cekProgress();
+}
+
+function shareWA() {
+    // Format chat sesuai permintaan
+    const waText = `*WEBSITE QuickFake By Jhon*\n> ${window.location.href}\n\n*SUMBER UTAMA*\n> https://whatsapp.com/channel/0029VaLiUSS5q08hPj5mcH0m`;
+    const encodedText = encodeURIComponent(waText);
+    window.open(`https://api.whatsapp.com/send?text=${encodedText}`, '_blank');
+    isShared = true;
+    cekProgress();
+}
+
+function cekProgress() {
+    const pBar = document.getElementById('pBar');
+    const statusText = document.getElementById('statusText');
+    let progress = 0;
+    
+    if (isFollowed) progress += 50;
+    if (isShared) progress += 50;
+    
+    pBar.style.width = progress + '%';
+    statusText.style.display = 'block';
+    
+    if (progress === 100) {
+        statusText.innerHTML = '✅ Verifikasi berhasil! Mengalihkan...';
+        statusText.style.color = '#10b981';
+        
+        // Simpan status verifikasi ke localStorage
+        localStorage.setItem('quickfake_verified', 'true');
+        
+        setTimeout(() => {
+            // Sembunyikan gate page
+            const gatePage = document.getElementById('gatePage');
+            gatePage.classList.add('hidden');
+            
+            // Tampilkan splash screen dan main content
+            document.getElementById('splashScreen').style.display = 'flex';
+            document.getElementById('mainContent').classList.remove('hidden');
+            
+            // Jalankan inisialisasi
+            initSplashScreen();
+            renderFormatGrid();
+            renderParamForm();
+            initNavigation();
+            
+            const generateBtn = document.getElementById('generateBtn');
+            if (generateBtn) generateBtn.addEventListener('click', generateMockup);
+            
+            const sswebBtn = document.getElementById('sswebGenerateBtn');
+            if (sswebBtn) sswebBtn.addEventListener('click', generateSSWeb);
+            
+        }, 1500);
+    } else {
+        statusText.innerHTML = `Progress: ${progress}% - Selesaikan kedua tugas!`;
+        statusText.style.color = '#f59e0b';
+    }
+}
+
 // ========== SPLASH SCREEN ==========
 function initSplashScreen() {
     const splashScreen = document.getElementById('splashScreen');
@@ -216,13 +306,11 @@ async function generateMockup() {
     let params = {};
     inputs.forEach(inp => { if (inp.value.trim()) params[inp.name] = encodeURIComponent(inp.value.trim()); });
     
-    // Validasi untuk brat text
     if (activeFormat.id === 'brat' && !params.text) {
         if (window.showToast) window.showToast('Masukkan teks terlebih dahulu', 'error');
         return;
     }
     
-    // Validasi untuk ytcomment
     if (activeFormat.id === 'ytcomment') {
         if (!params.username) {
             if (window.showToast) window.showToast('Masukkan username terlebih dahulu', 'error');
@@ -240,12 +328,9 @@ async function generateMockup() {
     
     const { interval, fill, percent } = showGenerateLoading('');
     
-    // Gunakan baseUrl yang sesuai untuk setiap format
     const baseUrl = activeFormat.baseUrl || 'https://api.zenzxz.my.id';
     let apiUrl = `${baseUrl}${activeFormat.endpoint}?`;
     apiUrl += Object.entries(params).map(([k, v]) => `${k}=${v}`).join('&');
-    
-    console.log('Requesting:', apiUrl);
     
     try {
         const response = await fetch(apiUrl, { method: 'GET', mode: 'cors', headers: { 'Accept': 'image/*' } });
@@ -289,7 +374,6 @@ async function generateMockup() {
         if (window.showToast) window.showToast('Mockup berhasil dibuat!', 'success');
         
     } catch (err) {
-        console.error('Generate error:', err);
         resultDiv.innerHTML = `<div class="result-placeholder"><i class="fas fa-times-circle"></i><p>Gagal: ${err.message}</p></div>`;
         hideGenerateLoading(interval, fill, percent, false, '');
         if (window.showToast) window.showToast(err.message, 'error');
@@ -307,24 +391,61 @@ async function generateSSWeb() {
         if (window.showToast) window.showToast('Masukkan URL website terlebih dahulu', 'error');
         return;
     }
-    
     if (!device) {
         if (window.showToast) window.showToast('Pilih perangkat (Desktop/Mobile/Tablet)', 'error');
         return;
     }
-    
     if (!fullPage) {
         if (window.showToast) window.showToast('Pilih opsi Halaman Penuh (Ya/Tidak)', 'error');
         return;
     }
-    
     if (!scale) {
         if (window.showToast) window.showToast('Pilih skala (1x/2x/3x)', 'error');
         return;
     }
     
     const resultDiv = document.getElementById('sswebResultArea');
-    const { interval, fill, percent } = showGenerateLoading('ssweb');
+    const generateBtn = document.getElementById('sswebGenerateBtn');
+    const loadingDiv = document.getElementById('sswebLoading');
+    const loadingFill = document.getElementById('sswebProgressFill');
+    const loadingPercent = document.getElementById('sswebProgressPercent');
+    const loadingMessage = document.getElementById('sswebLoadingMessage');
+    
+    generateBtn.classList.add('hidden');
+    loadingDiv.classList.remove('hidden');
+    
+    loadingFill.style.width = '0%';
+    loadingPercent.textContent = '0';
+    loadingMessage.innerHTML = '<i class="fas fa-globe"></i> Menghubungkan ke server...';
+    
+    let progress = 0;
+    let msgIndex = 0;
+    const loadingMessages = [
+        { icon: 'fa-globe', text: 'Menghubungkan ke server...' },
+        { icon: 'fa-camera', text: 'Mengambil screenshot...' },
+        { icon: 'fa-image', text: 'Memproses gambar...' },
+        { icon: 'fa-check-circle', text: 'Menyelesaikan...' }
+    ];
+    
+    const progressInterval = setInterval(() => {
+        if (progress < 90) {
+            progress += Math.random() * 15;
+            if (progress > 90) progress = 90;
+            loadingFill.style.width = progress + '%';
+            loadingPercent.textContent = Math.floor(progress);
+        }
+        
+        if (progress >= 20 && msgIndex === 0) {
+            msgIndex++;
+            loadingMessage.innerHTML = `<i class="fas ${loadingMessages[msgIndex].icon}"></i> ${loadingMessages[msgIndex].text}`;
+        } else if (progress >= 50 && msgIndex === 1) {
+            msgIndex++;
+            loadingMessage.innerHTML = `<i class="fas ${loadingMessages[msgIndex].icon}"></i> ${loadingMessages[msgIndex].text}`;
+        } else if (progress >= 75 && msgIndex === 2) {
+            msgIndex++;
+            loadingMessage.innerHTML = `<i class="fas ${loadingMessages[msgIndex].icon}"></i> ${loadingMessages[msgIndex].text}`;
+        }
+    }, 200);
     
     let apiUrl = `https://api.zenzxz.my.id/tools/ssweb?url=${encodeURIComponent(url)}`;
     if (device) apiUrl += `&device=${device}`;
@@ -343,41 +464,51 @@ async function generateSSWeb() {
         
         const imageUrl = data.result.url;
         
-        resultDiv.innerHTML = `
-            <div class="result-content">
-                <img src="${imageUrl}" alt="Screenshot" style="max-width:100%; border-radius:1rem; box-shadow:0 8px 20px rgba(0,0,0,0.3);" />
-                <div style="margin-top:20px; text-align:center;">
-                    <button class="download-btn" id="sswebDownloadBtn">
-                        <i class="fas fa-download"></i> Download Screenshot
-                    </button>
+        clearInterval(progressInterval);
+        loadingFill.style.width = '100%';
+        loadingPercent.textContent = '100';
+        loadingMessage.innerHTML = '<i class="fas fa-check-circle"></i> Selesai!';
+        
+        setTimeout(() => {
+            resultDiv.innerHTML = `
+                <div class="result-content">
+                    <img src="${imageUrl}" alt="Screenshot" style="max-width:100%; border-radius:1rem; box-shadow:0 8px 20px rgba(0,0,0,0.3);" />
+                    <div style="margin-top:20px; text-align:center;">
+                        <button class="download-btn" id="sswebDownloadBtn">
+                            <i class="fas fa-download"></i> Download Screenshot
+                        </button>
+                    </div>
+                    <p style="font-size:0.7rem; color:#6c757d; margin-top:12px;">📸 ${url.substring(0, 50)}${url.length > 50 ? '...' : ''}</p>
                 </div>
-                <p style="font-size:0.7rem; color:#6c757d; margin-top:12px;">📸 ${url.substring(0, 50)}${url.length > 50 ? '...' : ''}</p>
-            </div>
-        `;
-        
-        const downloadBtn = document.getElementById('sswebDownloadBtn');
-        if (downloadBtn) {
-            const newBtn = downloadBtn.cloneNode(true);
-            downloadBtn.parentNode.replaceChild(newBtn, downloadBtn);
+            `;
             
-            newBtn.onclick = async (e) => {
-                e.preventDefault();
-                if (typeof window.downloadImage === 'function') {
-                    await window.downloadImage(imageUrl, `screenshot_${Date.now()}.png`);
-                } else {
-                    const a = document.createElement('a');
-                    a.href = imageUrl;
-                    a.download = `screenshot_${Date.now()}.png`;
-                    a.click();
-                }
-            };
-        }
+            const downloadBtn = document.getElementById('sswebDownloadBtn');
+            if (downloadBtn) {
+                const newBtn = downloadBtn.cloneNode(true);
+                downloadBtn.parentNode.replaceChild(newBtn, downloadBtn);
+                
+                newBtn.onclick = async (e) => {
+                    e.preventDefault();
+                    if (typeof window.downloadImage === 'function') {
+                        await window.downloadImage(imageUrl, `screenshot_${Date.now()}.png`);
+                    } else {
+                        const a = document.createElement('a');
+                        a.href = imageUrl;
+                        a.download = `screenshot_${Date.now()}.png`;
+                        a.click();
+                    }
+                };
+            }
+            
+            loadingDiv.classList.add('hidden');
+            generateBtn.classList.remove('hidden');
+        }, 500);
         
-        hideGenerateLoading(interval, fill, percent, true, 'ssweb');
         if (window.showToast) window.showToast('Screenshot berhasil diambil!', 'success');
         
     } catch (err) {
-        console.error('SSWeb Error:', err);
+        clearInterval(progressInterval);
+        
         resultDiv.innerHTML = `
             <div class="result-placeholder">
                 <i class="fas fa-times-circle"></i>
@@ -385,7 +516,10 @@ async function generateSSWeb() {
                 <p style="font-size:0.8rem; margin-top:8px;">Pastikan URL valid dan semua parameter telah diisi</p>
             </div>
         `;
-        hideGenerateLoading(interval, fill, percent, false, 'ssweb');
+        
+        loadingDiv.classList.add('hidden');
+        generateBtn.classList.remove('hidden');
+        
         if (window.showToast) window.showToast(err.message, 'error');
     }
 }
@@ -429,15 +563,11 @@ function initNavigation() {
 }
 
 // ========== INITIALIZATION ==========
-document.addEventListener('DOMContentLoaded', () => {
-    initSplashScreen();
-    renderFormatGrid();
-    renderParamForm();
-    initNavigation();
-    
-    const generateBtn = document.getElementById('generateBtn');
-    if (generateBtn) generateBtn.addEventListener('click', generateMockup);
-    
-    const sswebBtn = document.getElementById('sswebGenerateBtn');
-    if (sswebBtn) sswebBtn.addEventListener('click', generateSSWeb);
-});
+// Note: Initialization is handled by verification gate
+// Only run if already verified
+if (verificationCompleted) {
+    // Already handled above
+} else {
+    // Gate page is active, nothing to initialize yet
+    console.log('Waiting for verification...');
+}
